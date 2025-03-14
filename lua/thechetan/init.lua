@@ -18,10 +18,20 @@ vim.keymap.set("n", "<leader>bd", ":bp | bd #<CR>", { noremap = true, silent = t
 
 vim.api.nvim_create_user_command("E", "Explore", {})
 
-require('telescope').setup({})
 local builtin = require('telescope.builtin')
-vim.keymap.set('n', '<leader>ff', builtin.git_files, {})
+
+vim.keymap.set("n", "<BS>", ":b#<CR>", { noremap = true, silent = true })
+vim.keymap.set('n', '<leader>fp', builtin.find_files, {})
+vim.keymap.set("n", "<leader>ff", function()
+  vim.cmd("Ex .")
+end, { noremap = true, silent = true })
+
+vim.keymap.set("n", "<leader>fei", ":e ~/.config/nvim/lua/thechetan/init.lua<CR>", { noremap = true, silent = true })
+
 vim.keymap.set('n', '<leader>h', builtin.builtin, {})
+vim.keymap.set("n", "<leader>r", function()
+  vim.cmd("only")
+end, { noremap = true, silent = true })
 
 vim.keymap.set('n', '<leader>s', function()
     local word = vim.fn.expand("<cword>")

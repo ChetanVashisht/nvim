@@ -11,7 +11,7 @@ return {
         "hrsh7th/nvim-cmp",
         "L3MON4D3/LuaSnip",
         "saadparwaiz1/cmp_luasnip",
-        -- "hrsh7th/cmp-nvim-lsp-signature-help",
+        "hrsh7th/cmp-nvim-lsp-signature-help",
         "j-hui/fidget.nvim",
     },
 
@@ -95,7 +95,7 @@ return {
                 { name = 'copilot' },
                 { name = 'nvim_lsp' },
                 { name = 'luasnip' }, -- For luasnip users.
-                -- { name = 'nvim_lsp_signature_help' }
+                { name = 'nvim_lsp_signature_help' }
             }, {
                 { name = 'buffer' },
             })

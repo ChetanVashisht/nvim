@@ -15,3 +15,5 @@ require("lazy").setup({
     spec = "theprimeagen.lazy",
     change_detection = { notify = false }
 })
+
+require'telescope'.load_extension('project')

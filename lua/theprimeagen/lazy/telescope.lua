@@ -8,7 +8,25 @@ return {
     },
 
     config = function()
-        require('telescope').setup({})
+        local actions = require("telescope.actions")
+        local action_state = require("telescope.actions.state")
+        require('telescope').setup({
+            {
+                defaults = {
+                    mappings = {
+                        i = {
+                            ["<C-CR>"] = function(prompt_bufnr)
+                                local selection = action_state.get_selected_entry()
+                                if selection then
+                                    actions.close(prompt_bufnr)
+                                    vim.cmd("vsplit " .. selection.value)
+                                end
+                            end,
+                        },
+                    },
+                },
+            }
+        })
 
         local builtin = require('telescope.builtin')
         vim.keymap.set('n', '<leader>pf', builtin.find_files, {})

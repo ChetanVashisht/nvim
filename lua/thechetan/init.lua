@@ -5,6 +5,24 @@ local opts = { noremap = true, silent = true }
 -------------------------------------------------------------------------------
 vim.keymap.set("n", "x", '"_x', opts)
 vim.opt.clipboard = "unnamedplus"
+vim.keymap.set("i", "<D-v>", "<C-r>*", opts)
+
+-- vim.keymap.set("c", "<D-v>", function()
+--     local clip = vim.fn.getreg("+") -- Get clipboard content
+--     clip = clip:gsub("\n", " ") -- Replace newlines with spaces to prevent accidental execution
+--     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(clip, true, true, true), "c", false)
+-- end, { noremap = true, silent = false })
+
+
+vim.keymap.set("c", "<D-v>", function()
+    -- Open the command-line window (`q:`)
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-f>", true, true, true), "n", false)
+    -- Small delay, then paste inside the `q:` window
+    vim.defer_fn(function()
+        local clip = vim.fn.getreg("+"):gsub("\n", " ") -- Remove newlines
+        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("i" .. clip, true, true, true), "n", false)
+    end, 100) -- Ensure the command-line window is fully open
+end, { noremap = true, silent = false })
 
 -------------------------------------------------------------------------------
 ----------------------------- Window Management --------------------------------
@@ -132,6 +150,7 @@ end, { silent = true, noremap = true, desc = "Open Spectre" })
 ------------------------------------------------------------------------------
 --------------------------- Terminal keymaps ---------------------------------
 ------------------------------------------------------------------------------
+vim.opt.shell = "/opt/homebrew/bin/fish"
 vim.keymap.set("n", "<leader>t", ":vsplit | terminal<CR>", opts)
 vim.api.nvim_set_keymap("t", "<Esc>", "<C-\\><C-n>", opts)
 vim.api.nvim_set_keymap("t", "jj", "<C-\\><C-n>", opts)
@@ -168,11 +187,27 @@ term_map("C", "<C-u>")
 term_map("dd", "<C-u><C-\\><C-n>")
 term_map("D", "<C-u><C-\\><C-n>")
 term_map("<C-k>", "<C-u>clear<CR>")
+term_map("<D-k>", "<C-u>clear<CR>")
+term_map("<CR>", "<CR>")
+
+vim.keymap.set("t", "<D-k>", function()
+    if vim.bo.buftype == "terminal" then
+        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("i<C-u>clear<CR>", true, false, true), "t", false)
+    end
+end, { noremap = true, silent = true })
+
+vim.api.nvim_set_hl(0, "TermCursorNC", {
+    fg = "#fdf6e3",
+    bg = "#93a1a1",
+    ctermfg = 15,
+    ctermbg = 14,
+    cterm = {}
+})
 
 -------------------------------------------------------------------------------
 ----------------------------- Evil clever f -----------------------------------
 -------------------------------------------------------------------------------
----
+
 local function select_range(start_row, start_col, end_row, end_col)
     vim.api.nvim_win_set_cursor(0, { start_row + 1, start_col })
     vim.cmd("normal! v")
@@ -187,7 +222,7 @@ local function listToSet(list)
     return set
 end
 
-local tokens = {'string', 'parameters', 'arguments', 'table_constructor', "parenthesized_expression", "bracket_index_expression", "interface_type", "parameter_list", "if_statement", "import_spec_list", "argument_list", "interpreted_string_literal", "quoted_attribute_value", "array", "named_imports", "formal_parameters", "interface_body", "statement_block", "for_statement", "object"}
+local tokens = {'string', 'parameters', 'arguments', 'table_constructor', "parenthesized_expression", "bracket_index_expression", "interface_type", "parameter_list", "if_statement", "import_spec_list", "argument_list", "interpreted_string_literal", "quoted_attribute_value", "array", "named_imports", "formal_parameters", "interface_body", "statement_block", "for_statement", "object", "function_declaration"}
 local tokens_set = listToSet(tokens)
 local terminal_tokens = {'program', 'chunk'}
 local terminal_tokens_set = listToSet(terminal_tokens)
@@ -226,4 +261,5 @@ end
 vim.keymap.set({ "o", "x" }, "af", function () del(true) end, { silent = true })
 vim.keymap.set({ "o", "x" }, "if", function () del(false) end, { silent = true })
 vim.keymap.set("n", "gf", select_node, { silent = true })
+
 

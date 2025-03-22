@@ -263,3 +263,19 @@ vim.keymap.set({ "o", "x" }, "if", function () del(false) end, { silent = true }
 vim.keymap.set("n", "gf", select_node, { silent = true })
 
 
+-------------------------------------------------------------------------------
+----------------------------- Git Fugitive ------------------------------------
+-------------------------------------------------------------------------------
+
+-- Note: Overriding vim's builtin function
+local original_gwrite = vim.fn["fugitive#WriteCommand"]
+
+-- Override :Gwrite with our custom logic
+vim.api.nvim_create_user_command("Gwrite", function(args)
+    if vim.bo.filetype == "fugitive" then
+        vim.api.nvim_err_writeln("🚫 Cannot run :Gwrite in a Fugitive buffer!")
+    else
+        original_gwrite(1, vim.v.count, "+", 0, "", args.args)
+    end
+end, { nargs = "?" })
+

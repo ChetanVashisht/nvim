@@ -41,19 +41,39 @@ vim.api.nvim_create_user_command("E", "Explore", {})
 vim.g.neovide_fullscreen = true
 
 local builtin = require('telescope.builtin')
+-- require("auto-session").setup({
+--   auto_session_enabled = true,
+--   auto_restore_enabled = true,
+--   auto_save_enabled = true,
+-- })
+
 vim.keymap.set("n", "<BS>", ":b#<CR>", opts)
 vim.keymap.set('n', '<leader>fp', builtin.find_files, {})
-vim.keymap.set("n", "<leader>pp", ":Telescope project<CR>", opts)
+-- vim.keymap.set("n", "<leader>pp", ":Telescope project<CR>", opts)
+
+-- vim.keymap.set("n", "<leader>pp", function()
+--   vim.cmd("Telescope project")
+--   vim.defer_fn(function()
+--     vim.cmd("SessionRestore")
+--   end, 100)  -- Delay to allow project change
+-- end, {desc = "Telescope project with session restore"})
+
 vim.keymap.set("n", "<leader>ff", function()
     vim.cmd("Ex .")
 end, opts)
+vim.keymap.set('n', '<leader>pw', function()
+  builtin.grep_string({ search = vim.fn.expand("<cword>") })
+end, { desc = "Search word under cursor in project" })
 
 vim.keymap.set("n", "<leader>fei", ":e ~/.config/nvim/lua/thechetan/init.lua<CR>", opts)
 vim.keymap.set("n", "<leader>fek", ":e ~/.config/nvim/lua/theprimeagen/init.lua<CR>", opts)
 vim.keymap.set("n", "<leader>fel", ":e ~/.config/nvim/lua/theprimeagen/lazy<CR>", opts)
 vim.keymap.set("n", "<leader>bl", ":Telescope buffers<CR>", opts)
 vim.keymap.set("n", "<leader>o", function ()
-    builtin.lsp_document_symbols({ symbols='function' })
+    builtin.lsp_document_symbols({ symbols='function', 'method' })
+end )
+vim.keymap.set("n", "<D-O>", function ()
+    builtin.lsp_document_symbols({ symbols='function', 'method' })
 end )
 vim.keymap.set("n", "<C-space>", function ()
     require('cmp').complete()
@@ -91,6 +111,7 @@ vim.keymap.set('n', '<D-E>', builtin.git_files, {})
 vim.keymap.set("n", "<D-1>", vim.lsp.buf.code_action, opts)
 vim.keymap.set("n", "<D-R>", vim.lsp.buf.rename, opts)
 vim.keymap.set("n", "<D-G>", vim.lsp.buf.incoming_calls, opts)
+vim.keymap.set('n', 'gj', vim.lsp.buf.implementation, { desc = "Go to implementation" })
 
 vim.keymap.set("n", "j", "gjzz", { noremap = true })
 vim.keymap.set("n", "k", "gkzz", { noremap = true })
@@ -173,6 +194,7 @@ local function term_map(lhs, action)
                 vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(lhs, true, false, true), "n", false)
             else
                 vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("i" .. action, true, false, true), "n", false)
+                -- vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("mzi<C-\\><C-o>`z<BS><C-\\><C-n>", true, false, true), "n", false)
             end
         else
             -- Default Vim behavior for normal buffers
@@ -181,8 +203,9 @@ local function term_map(lhs, action)
     end, { noremap = true, silent = true })
 end
 
-term_map("x", "<BS><C-\\><C-n>")
-term_map("s", "<BS>")
+-- term_map("x", "mzi<C-\\><C-o>`z<BS><C-\\><C-n>")
+term_map("x", "<BS>")
+term_map("s", "mz")
 term_map("C", "<C-u>")
 term_map("dd", "<C-u><C-\\><C-n>")
 term_map("D", "<C-u><C-\\><C-n>")
@@ -260,7 +283,7 @@ end
 
 vim.keymap.set({ "o", "x" }, "af", function () del(true) end, { silent = true })
 vim.keymap.set({ "o", "x" }, "if", function () del(false) end, { silent = true })
-vim.keymap.set("n", "gf", select_node, { silent = true })
+vim.keymap.set("n", "F", select_node, { silent = true })
 
 -------------------------------------------------------------------------------
 ----------------------------- Git Fugitive ------------------------------------
@@ -277,4 +300,29 @@ vim.api.nvim_create_user_command("Gwrite", function(args)
     end
 end, { nargs = "?" })
 
+-------------------------------------------------------------------------------
+----------------------------- Refactoring -------------------------------------
+-------------------------------------------------------------------------------
 
+vim.keymap.set({"n"},"<D-2>", function() require('refactoring').select_refactor() end)
+
+vim.api.nvim_create_user_command("GoGet", function(o)
+    vim.fn.system({ "go", "get", o.args })
+    print("Fetched package: " .. o.args)
+end, { nargs = 1 })
+
+
+vim.api.nvim_create_user_command("GoChangeSignature", function()
+    vim.lsp.buf.execute_command({
+        command = "gopls.change_signature",
+        arguments = {
+            {
+                URI = vim.uri_from_bufnr(0),
+                position = vim.api.nvim_win_get_cursor(0),
+            },
+        },
+    })
+end, {})
+
+-- vim.g.copilot_node_command = "/Users/cgv/.local/share/fnm/node-versions/v20.19.0/installation/bin/node"
+--

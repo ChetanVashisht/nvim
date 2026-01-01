@@ -11,15 +11,6 @@ return {
     {
         "erikbackman/brightburn.vim",
     },
-
-    {
-        "folke/tokyonight.nvim",
-        lazy = false,
-        opts = {},
-        -- config = function()
-        --     ColorMyPencils()
-        -- end
-    },
     {
         "ellisonleao/gruvbox.nvim",
         name = "gruvbox",
@@ -71,7 +62,6 @@ return {
             })
         end
     },
-
     {
         "rose-pine/neovim",
         name = "rose-pine",
@@ -83,7 +73,7 @@ return {
                 },
             })
 
-            -- ColorMyPencils()
+            -- ColorMyPencils('rose-pine-dawn')
         end
     },
 

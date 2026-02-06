@@ -43,7 +43,7 @@ return {
 
       vim.lsp.config.tsserver = {
         cmd = { 'typescript-language-server', '--stdio' },
-        filetypes = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
+        filetypes = { 'javascript', 'typescript' },
         -- root_markers = { 'package.json', 'tsconfig.json', 'jsconfig.json', '.git' },
         root_dir = function(bufno, on_dir)
           local fname = vim.api.nvim_buf_get_name(bufno)
@@ -61,8 +61,36 @@ return {
         end,
       }
       vim.lsp.enable("tsserver")
+      vim.lsp.enable("cucumber_language_server")
+
+      capabilities.textDocument.completion.completionItem.snippetSupport = true
+
+      vim.lsp.config('cssls', {
+        capabilities = capabilities,
+        filetypes = { 'css', 'scss', 'less', 'html', 'ejs' },
+      })
+      vim.lsp.enable('cssls')
+
+      vim.lsp.config('html', {
+        capabilities = capabilities,
+        filetypes = { 'html', 'ejs' },
+      })
+      vim.lsp.enable('html')
+      vim.lsp.enable('gopls')
 
 
+      vim.lsp.config("ccls", {
+        init_options = {
+          compilationDatabaseDirectory = "build";
+          index = {
+            threads = 0;
+          };
+          clang = {
+            excludeArgs = { "-frounding-math"} ;
+          };
+        }
+      })
+      vim.lsp.enable('ccls')
 
       -- To Explore, looks promising
       -- vim.lsp.enable('ast_grep')

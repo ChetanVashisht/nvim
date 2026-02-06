@@ -6,22 +6,23 @@ local opts = { noremap = true, silent = true }
 vim.keymap.set("n", "x", '"_x', opts)
 vim.opt.clipboard = "unnamedplus"
 vim.keymap.set("i", "<D-v>", "<C-r>*", opts)
+vim.keymap.set("t", "<D-v>", "<C-r>*", opts)
 
-vim.keymap.set("c", "<D-v>", function()
-    -- Open the command-line window (`q:`)
-    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-f>", true, true, true), "n", false)
-    -- Small delay, then paste inside the `q:` window
-    vim.defer_fn(function()
-        local clip = vim.fn.getreg("+"):gsub("\n", " ") -- Remove newlines
-        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("i" .. clip, true, true, true), "n", false)
-    end, 100) -- Ensure the command-line window is fully open
-end, { noremap = true, silent = false })
+-- vim.keymap.set("c", "<D-v>", function()
+--     -- Open the command-line window (`q:`)
+--     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-f>", true, true, true), "n", false)
+--     -- Small delay, then paste inside the `q:` window
+--     vim.defer_fn(function()
+--         local clip = vim.fn.getreg("+"):gsub("\n", " ") -- Remove newlines
+--         vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("i" .. clip, true, true, true), "n", false)
+--     end, 100) -- Ensure the command-line window is fully open
+-- end, { noremap = true, silent = false })
 
 -------------------------------------------------------------------------------
 ----------------------------- Window Management --------------------------------
 -------------------------------------------------------------------------------
 vim.o.guifont = "Monaco:h20"
-vim.g.neovide_cursor_animation_length = 0.05
+vim.g.neovide_cursor_animation_length = 0.001
 
 vim.keymap.set("n", "fj", "<C-w>j")
 vim.keymap.set("n", "fh", "<C-w>h")
@@ -38,26 +39,55 @@ vim.keymap.set("n", "<leader>fei", ":e ~/.config/nvim/lua/thechetan/init.lua<CR>
 vim.keymap.set("n", "<leader>fek", ":e ~/.config/nvim/lua/theprimeagen/init.lua<CR>", opts)
 vim.keymap.set("n", "<leader>fel", ":e ~/.config/nvim/lua/theprimeagen/lazy<CR>", opts)
 vim.keymap.set("n", "<leader>r", function()
-    vim.cmd("only")
+  vim.cmd("only")
 end, opts)
+
+local function grep_and_open(q)
+  vim.cmd("grep '" .. q .. "' .")
+  vim.cmd("copen")
+end
+
+vim.keymap.set("n", "<leader>s", function()
+  grep_and_open(vim.fn.expand("<cword>"))
+end, { silent = true })
+
+vim.keymap.set("n", "<D-s>", function()
+  grep_and_open(vim.fn.expand("<cword>"))
+end, { silent = true })
+
+vim.keymap.set("v", "<leader>s", function()
+  vim.cmd([[silent normal! "vy]])
+  grep_and_open(vim.fn.getreg("v"):gsub("\n", ""))
+end, { silent = true })
+
+vim.keymap.set("v", "<D-s>", function()
+  vim.cmd([[silent normal! "vy]])
+  grep_and_open(vim.fn.getreg("v"):gsub("\n", ""))
+end, { silent = true })
 
 -- Map 'q' to ':q' only in read-only buffers
 vim.api.nvim_create_autocmd("BufEnter", {
-    pattern = "*",
-    callback = function()
-        if vim.bo.readonly then
-            vim.keymap.set("n", "q", "<cmd>q<CR>", { noremap = true, silent = true, buffer = true })
-        end
+  pattern = "*",
+  callback = function()
+    if vim.bo.readonly then
+      vim.keymap.set("n", "q", "<cmd>q<CR>", { noremap = true, silent = true, buffer = true })
     end
+  end
 })
 
 
-vim.keymap.set("n", "<D-1>", vim.lsp.buf.code_action, opts)
+vim.keymap.set("n", "<D-o>", vim.lsp.buf.document_symbol, opts)
+vim.keymap.set("n", "<D-S-o>", function ()
+  vim.lsp.buf.workspace_symbol(vim.fn.expand("<cword>"))
+end, opts)
+vim.keymap.set({"n", "v"}, "<D-1>", vim.lsp.buf.code_action, opts)
 vim.keymap.set("n", "<D-S-R>", vim.lsp.buf.rename, opts)
 vim.keymap.set("n", "<D-S-G>", vim.lsp.buf.references, opts)
 vim.keymap.set("n", "<D-G>", vim.lsp.buf.incoming_calls, opts)
 vim.keymap.set('n', 'gj', vim.lsp.buf.implementation, { desc = "Go to implementation" })
+vim.keymap.set('n', '<D-j>', vim.lsp.buf.implementation, { desc = "Go to implementation" })
 vim.keymap.set('n', 'ge', vim.diagnostic.open_float, { desc = "Show errors" })
+vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = "Show errors" })
 
 vim.keymap.set("n", "gg", "ggzz", { silent = true })
 vim.keymap.set("n", "G", "Gzz", { silent = true })
@@ -78,12 +108,12 @@ vim.opt.wildmode = { "longest:full", "full" }
 -------------------------------------------------------------------------------
 ------------------------------- Folding  --------------------------------------
 -------------------------------------------------------------------------------
-vim.opt.foldmethod = "expr"
 vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
+vim.opt.foldmethod = "expr"
 vim.opt.foldenable = true  -- Ensure folding is enabled
 vim.opt.foldlevel = 99     -- Start with all folds open
 function MyFoldText()
-    return vim.fn.getline(vim.v.foldstart) .. ' ... ' .. vim.fn.getline(vim.v.foldend):gsub("^%s*", "")
+  return vim.fn.getline(vim.v.foldstart) .. ' ... ' .. vim.fn.getline(vim.v.foldend):gsub("^%s*", "")
 end
 vim.opt.foldtext = 'v:lua.MyFoldText()'
 vim.opt.fillchars:append({fold = " " })
@@ -98,16 +128,16 @@ vim.opt.path:append("packages/**/src") -- Allows searching inside packages
 vim.opt.includeexpr = "v:lua.ResolveImportPath(v:fname)" -- Custom resolution function
 
 function _G.ResolveImportPath(fname)
-    local new_path = fname:gsub("^@([^/]+)/", "packages/%1/src/")
-    local extensions = { "", ".ts" }
-    for _, ext in ipairs(extensions) do
-        local full_path = new_path .. ext
-        if vim.fn.filereadable(full_path) == 1 then
-            return full_path
-        end
+  local new_path = fname:gsub("^@([^/]+)/", "packages/%1/src/")
+  local extensions = { "", ".ts" }
+  for _, ext in ipairs(extensions) do
+    local full_path = new_path .. ext
+    if vim.fn.filereadable(full_path) == 1 then
+      return full_path
     end
+  end
 
-    return new_path
+  return new_path
 end
 
 ------------------------------------------------------------------------------
@@ -115,29 +145,38 @@ end
 ------------------------------------------------------------------------------
 vim.opt.shell = "/opt/homebrew/bin/fish"
 vim.keymap.set('c', '%%', "<C-R>=expand('%:h').'/'<cr>")
-vim.keymap.set("n", "<leader>t", ":vsplit | terminal<CR>%%", opts)
--- vim.api.nvim_set_keymap("t", "<Esc><Esc>", "<C-\\><C-n>", opts)
 vim.api.nvim_set_keymap("t", "jj", "<C-\\><C-n>", opts)
 
--- disable line numbering in terminal mode
--- vim.keymap.set("t", "vim ", [[<C-\><C-n>:tabedit <C-R>=getcwd().'/'<CR>]], { silent = true })
 local vim_term = vim.api.nvim_create_augroup('vim_term', { clear = true })
 vim.api.nvim_create_autocmd('TermOpen', {
-    callback = function()
-        vim.opt_local.relativenumber = false
-        vim.opt_local.number = false
-        vim.cmd("startinsert")
-    end,
-    group = vim_term
+  callback = function()
+    vim.opt_local.relativenumber = false
+    vim.opt_local.number = false
+    vim.cmd("startinsert")
+  end,
+  group = vim_term
 })
 
-vim.api.nvim_set_hl(0, "TermCursorNC", {
-    fg = "#fdf6e3",
-    bg = "#93a1a1",
-    ctermfg = 15,
-    ctermbg = 14
-})
+-- Note vim.g.acd doesn't work for terminal mode, so we have to hack it from the shell
+-- # fish.config
+-- function sync_nvim_cwd --on-variable PWD
+--     if set -q NVIM
+--         command nvim --server $NVIM  --remote-expr "execute('cd ' . fnameescape('$PWD'))"
+--     end
+-- end
 
+-- Note: To prevent opening vim inside vim, we hack a command
+-- to open the file in a new tab
+--
+-- function vim
+--     # If we're already inside Neovide, ask Neovim to open a tab
+--     if set -q NVIM
+--         command nvim --server $NVIM --remote-tab $argv
+--     else
+--         # Outside Neovide, launch Neovide normally
+--         command neovide $argv
+--     end
+-- end
 -------------------------------------------------------------------------------
 ----------------------------- Evil clever f -----------------------------------
 -------------------------------------------------------------------------------
@@ -240,8 +279,13 @@ vim.opt.switchbuf = 'usetab'
 vim.keymap.set("n", "<leader>x", ":.lua<CR>")
 
 vim.keymap.set('n', '<leader>ff', '<cmd>CommandTFd<cr>', { desc = 'Command-T Files' })
-vim.keymap.set('n', '<leader>bb', '<cmd>CommandTBuffer<cr>', { desc = 'Command-T Buffers' })
+vim.keymap.set("n", '<leader>bb', '<cmd>CommandTBuffer<cr>', { desc = 'Command-T Buffers' })
+vim.keymap.set("t", '<C-b>', '<cmd>CommandTBuffer<cr>', { desc = 'Command-T Buffers' })
 
+vim.keymap.set("n", '<leader>c', '<cmd>:b claude<cr>', { desc = 'switch to claude' })
+vim.keymap.set("n", '<leader>s', '<cmd>:b server<cr>', { desc = 'switch to server' })
+vim.keymap.set("n", '<leader>t', '<cmd>:b terminal<cr>', { desc = 'switch to server' })
+vim.keymap.set("n", '<leader><leader>', '<C-^>', { desc = 'switch back' })
 
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "help",
@@ -252,18 +296,26 @@ vim.api.nvim_create_autocmd("FileType", {
 ----------------------------- Colorscheme -------------------------------------
 -------------------------------------------------------------------------------
 vim.api.nvim_create_autocmd('BufEnter', {
-    callback = function()
-        -- Best for terminal
-        -- vim.cmd.colorscheme("rose-pine-dawn")
-        --
-        -- Best for dark theme
-        vim.cmd.colorscheme("brightburn")
-        --
-        -- Best for light theme
-        -- vim.cmd.colorscheme("tokyonight-day")
-        -- vim.api.nvim_set_hl(0, "Normal", { bg = "#fdf6e3" })
-    end
+  callback = function()
+    -- Best for terminal
+    vim.cmd.colorscheme("rose-pine-dawn")
+    --
+    -- Best for dark theme
+    -- vim.cmd.colorscheme("brightburn")
+    --
+    -- Best for light theme
+    -- vim.cmd.colorscheme("tokyonight-day")
+    -- vim.cmd.colorscheme("shine")
+    -- vim.api.nvim_set_hl(0, "Normal", { bg = "#fdf6e3" })
+  end
 })
+
+-- vim.api.nvim_create_autocmd("TermOpen", {
+--   callback = function()
+--     vim.wo.winhighlight = "Normal:TerminalNormal,NormalNC:TerminalNormal"
+--     vim.api.nvim_set_hl(0, "TerminalNormal", { fg = "#586e75", bg = "NONE" })
+--   end,
+-- })
 
 
 vim.g.netrw_banner = 0
@@ -273,5 +325,27 @@ vim.g.neovide_fullscreen = true
 vim.opt.mouse = ""
 
 vim.o.winborder = 'double'
-vim.o.acd = true
 vim.o.fdm = 'indent'
+
+vim.keymap.set("t", "<ScrollWheelUp>",   "", { noremap = true })
+vim.keymap.set("t", "<ScrollWheelDown>", "", { noremap = true })
+vim.keymap.set("v", "<leader>o", function ()
+  vim.cmd('normal! "zy')
+  local text = vim.fn.getreg('z')
+  vim.ui.open(text)
+end)
+vim.keymap.set("","<C-t>", "<Cmd>tabnext<CR>", { silent = true })
+vim.keymap.set("","<D-t>", "<Cmd>tabnew<CR>", {silent = true})
+vim.keymap.set("","<D-w>", "<Cmd>tabclose<CR>", {silent = true})
+vim.keymap.set("", "<D-S-Right>", "<Cmd>tabnext<CR>", { silent = true })
+vim.keymap.set("", "<D-S-Left>", "<Cmd>tabNext<CR>", { silent = true })
+vim.keymap.set("", "<D-Right>", "<Cmd>tabnext<CR>", { silent = true })
+vim.keymap.set("", "<D-Left>", "<Cmd>tabNext<CR>", { silent = true })
+
+vim.keymap.set("t","<D-t>", "<Cmd>tabnew<CR>", {silent = true})
+vim.keymap.set("t","<D-w>", "<Cmd>tabclose<CR>", {silent = true})
+vim.keymap.set("t", "<D-S-Right>", "<Cmd>tabnext<CR>", { silent = true })
+vim.keymap.set("t", "<D-S-Left>", "<Cmd>tabNext<CR>", { silent = true })
+vim.keymap.set("t", "<D-Right>", "<Cmd>tabnext<CR>", { silent = true })
+vim.keymap.set("t", "<D-Left>", "<Cmd>tabNext<CR>", { silent = true })
+vim.opt.confirm = true

@@ -282,7 +282,8 @@ vim.keymap.set('n', '<leader>ff', '<cmd>CommandTFd<cr>', { desc = 'Command-T Fil
 vim.keymap.set("n", '<leader>bb', '<cmd>CommandTBuffer<cr>', { desc = 'Command-T Buffers' })
 vim.keymap.set("t", '<C-b>', '<cmd>CommandTBuffer<cr>', { desc = 'Command-T Buffers' })
 
-vim.keymap.set("n", '<leader>c', '<cmd>:b claude<cr>', { desc = 'switch to claude' })
+-- vim.keymap.set("n", '<leader>c', '<cmd>:b claude<cr>', { desc = 'switch to claude' })
+vim.keymap.set("n", '<leader>c', "<cmd>vsplit | b claude<cr>", { desc = 'switch to claude' })
 vim.keymap.set("n", '<leader>s', '<cmd>:b server<cr>', { desc = 'switch to server' })
 vim.keymap.set("n", '<leader>t', '<cmd>:b terminal<cr>', { desc = 'switch to server' })
 vim.keymap.set("n", '<leader><leader>', '<C-^>', { desc = 'switch back' })
@@ -295,17 +296,22 @@ vim.api.nvim_create_autocmd("FileType", {
 -------------------------------------------------------------------------------
 ----------------------------- Colorscheme -------------------------------------
 -------------------------------------------------------------------------------
+-- vim.cmd.colorscheme("tokyonight-day")
+vim.cmd.colorscheme("retrobox")
+-- vim.api.nvim_set_hl(0, "Normal", { bg = "#fdf6e3" })
+
 vim.api.nvim_create_autocmd('BufEnter', {
   callback = function()
     -- Best for terminal
-    vim.cmd.colorscheme("rose-pine-dawn")
+    -- vim.cmd.colorscheme("rose-pine-dawn")
+    -- vim.cmd.colorscheme("slate")
     --
     -- Best for dark theme
     -- vim.cmd.colorscheme("brightburn")
     --
     -- Best for light theme
-    -- vim.cmd.colorscheme("tokyonight-day")
     -- vim.cmd.colorscheme("shine")
+    -- vim.cmd.colorscheme("tokyonight-day")
     -- vim.api.nvim_set_hl(0, "Normal", { bg = "#fdf6e3" })
   end
 })
@@ -319,7 +325,7 @@ vim.api.nvim_create_autocmd('BufEnter', {
 
 
 vim.g.netrw_banner = 0
-vim.opt.winwidth = 85
+vim.opt.winwidth = 100
 vim.g.neovide_fullscreen = true
 
 vim.opt.mouse = ""
@@ -335,7 +341,7 @@ vim.keymap.set("v", "<leader>o", function ()
   vim.ui.open(text)
 end)
 vim.keymap.set("","<C-t>", "<Cmd>tabnext<CR>", { silent = true })
-vim.keymap.set("","<D-t>", "<Cmd>tabnew<CR>", {silent = true})
+vim.keymap.set("n","<D-t>", "<Cmd>tabnew<CR>", {silent = true})
 vim.keymap.set("","<D-w>", "<Cmd>tabclose<CR>", {silent = true})
 vim.keymap.set("", "<D-S-Right>", "<Cmd>tabnext<CR>", { silent = true })
 vim.keymap.set("", "<D-S-Left>", "<Cmd>tabNext<CR>", { silent = true })
@@ -349,3 +355,7 @@ vim.keymap.set("t", "<D-S-Left>", "<Cmd>tabNext<CR>", { silent = true })
 vim.keymap.set("t", "<D-Right>", "<Cmd>tabnext<CR>", { silent = true })
 vim.keymap.set("t", "<D-Left>", "<Cmd>tabNext<CR>", { silent = true })
 vim.opt.confirm = true
+
+-- include the restart command from the other file
+vim.cmd.source("~/.config/nvim/lua/thechetan/restart.lua")
+vim.opt.rtp:prepend("~/.opam/default/share/ocp-indent/vim")

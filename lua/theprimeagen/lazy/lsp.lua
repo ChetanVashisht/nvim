@@ -91,6 +91,7 @@ return {
         }
       })
       vim.lsp.enable('ccls')
+      vim.lsp.enable('ocamllsp')
 
       -- To Explore, looks promising
       -- vim.lsp.enable('ast_grep')

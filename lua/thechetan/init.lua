@@ -297,7 +297,11 @@ vim.api.nvim_create_autocmd("FileType", {
 ----------------------------- Colorscheme -------------------------------------
 -------------------------------------------------------------------------------
 -- vim.cmd.colorscheme("tokyonight-day")
-vim.cmd.colorscheme("retrobox")
+-- vim.cmd.colorscheme("retrobox")
+-- vim.cmd.colorscheme("rose-pine-dawn")
+vim.cmd.colorscheme("shine")
+-- vim.cmd.colorscheme("desert")
+-- vim.api.nvim_set_hl(0, 'Normal', { bg = 'none' })
 -- vim.api.nvim_set_hl(0, "Normal", { bg = "#fdf6e3" })
 
 vim.api.nvim_create_autocmd('BufEnter', {
@@ -359,3 +363,4 @@ vim.opt.confirm = true
 -- include the restart command from the other file
 vim.cmd.source("~/.config/nvim/lua/thechetan/restart.lua")
 vim.opt.rtp:prepend("~/.opam/default/share/ocp-indent/vim")
+

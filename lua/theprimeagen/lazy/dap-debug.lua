@@ -11,6 +11,11 @@ return {
           args = {"/Users/cgv/Documents/js-debug/src/dapDebugServer.js", "9229"},
         }
       }
+      require("dap").adapters.ocaml = {
+          type = "executable",
+          command = "ocamlearlybird",
+          args = {"debug"},
+      }
       require('dap').set_log_level('TRACE')
       require("dap").configurations.typescript = {
         {
@@ -37,6 +42,14 @@ return {
           name= "Launch File",
           program= "${file}",
           cwd= "${workspaceFolder}"
+        }
+      }
+      require("dap").configurations.ocaml = {
+        {
+          name = "earlybird",
+          type = "ocaml",
+          request = "launch",
+          program = "${workspaceFolder}/_build/default/foo.bc",
         }
       }
     end

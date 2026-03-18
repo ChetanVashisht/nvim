@@ -118,32 +118,10 @@ end
 vim.opt.foldtext = 'v:lua.MyFoldText()'
 vim.opt.fillchars:append({fold = " " })
 
--------------------------------------------------------------------------------
------------------------------ Frontend Hacks ----------------------------------
--------------------------------------------------------------------------------
--- Because LSP doesn't work in the frontend repo, this
--- workaround allows me to visit a file using `gf`
-vim.opt.path:append("src") -- Allows searching inside packages
-vim.opt.path:append("packages/**/src") -- Allows searching inside packages
-vim.opt.includeexpr = "v:lua.ResolveImportPath(v:fname)" -- Custom resolution function
-
-function _G.ResolveImportPath(fname)
-  local new_path = fname:gsub("^@([^/]+)/", "packages/%1/src/")
-  local extensions = { "", ".ts" }
-  for _, ext in ipairs(extensions) do
-    local full_path = new_path .. ext
-    if vim.fn.filereadable(full_path) == 1 then
-      return full_path
-    end
-  end
-
-  return new_path
-end
-
 ------------------------------------------------------------------------------
 --------------------------- Terminal keymaps ---------------------------------
 ------------------------------------------------------------------------------
-vim.opt.shell = "/opt/homebrew/bin/fish"
+-- vim.opt.shell = "/opt/homebrew/bin/fish"
 vim.keymap.set('c', '%%', "<C-R>=expand('%:h').'/'<cr>")
 vim.api.nvim_set_keymap("t", "jj", "<C-\\><C-n>", opts)
 
@@ -257,7 +235,7 @@ vim.opt.undofile = true
 vim.opt.hlsearch = false
 vim.opt.incsearch = true
 
-vim.opt.scrolloff = 8
+-- vim.opt.scrolloff = 8
 vim.opt.signcolumn = "yes"
 vim.opt.updatetime = 50
 vim.g.neovide_input_use_logo = true
@@ -282,10 +260,6 @@ vim.keymap.set('n', '<leader>ff', '<cmd>CommandTFd<cr>', { desc = 'Command-T Fil
 vim.keymap.set("n", '<leader>bb', '<cmd>CommandTBuffer<cr>', { desc = 'Command-T Buffers' })
 vim.keymap.set("t", '<C-b>', '<cmd>CommandTBuffer<cr>', { desc = 'Command-T Buffers' })
 
--- vim.keymap.set("n", '<leader>c', '<cmd>:b claude<cr>', { desc = 'switch to claude' })
-vim.keymap.set("n", '<leader>c', "<cmd>vsplit | b claude<cr>", { desc = 'switch to claude' })
-vim.keymap.set("n", '<leader>s', '<cmd>:b server<cr>', { desc = 'switch to server' })
-vim.keymap.set("n", '<leader>t', '<cmd>:b terminal<cr>', { desc = 'switch to server' })
 vim.keymap.set("n", '<leader><leader>', '<C-^>', { desc = 'switch back' })
 
 vim.api.nvim_create_autocmd("FileType", {
@@ -296,40 +270,48 @@ vim.api.nvim_create_autocmd("FileType", {
 -------------------------------------------------------------------------------
 ----------------------------- Colorscheme -------------------------------------
 -------------------------------------------------------------------------------
+-- https://www.reddit.com/r/neovim/comments/1ehidxy/you_can_remove_padding_around_neovim_instance/
+vim.api.nvim_create_autocmd({ "UIEnter", "ColorScheme" }, {
+  callback = function()
+    local normal = vim.api.nvim_get_hl(0, { name = "Normal" })
+    if not normal.bg then return end
+    io.write(string.format("\027]11;#%06x\027\\", normal.bg))
+  end,
+})
+
+vim.api.nvim_create_autocmd("UILeave", {
+  callback = function() io.write("\027]111\027\\") end,
+})
+
+local function set_theme()
+  local handle = io.popen("defaults read -g AppleInterfaceStyle 2>/dev/null")
+  local result = handle:read("*a")
+  handle:close()
+
+  if result:match("Dark") then
+    vim.o.background = "dark"
+    vim.cmd.colorscheme("default")
+    vim.api.nvim_set_hl(0, "NormalFloat", { bg = "#000000" })
+    vim.api.nvim_set_hl(0, "FloatBorder", { fg = "#bbbbbb", bg = "#000000" })
+  else
+    vim.o.background = "light"
+    vim.cmd.colorscheme("shine")
+    vim.api.nvim_set_hl(0, "NormalFloat", { bg = "#ffffff" })
+    vim.api.nvim_set_hl(0, "FloatBorder", { fg = "#bbbbbb", bg = "#ffffff" })
+  end
+end
+
+set_theme()
 -- vim.cmd.colorscheme("tokyonight-day")
+-- For sepia
 -- vim.cmd.colorscheme("retrobox")
 -- vim.cmd.colorscheme("rose-pine-dawn")
-vim.cmd.colorscheme("shine")
--- vim.cmd.colorscheme("desert")
+-- vim.cmd.colorscheme("shine")
 -- vim.api.nvim_set_hl(0, 'Normal', { bg = 'none' })
 -- vim.api.nvim_set_hl(0, "Normal", { bg = "#fdf6e3" })
 
-vim.api.nvim_create_autocmd('BufEnter', {
-  callback = function()
-    -- Best for terminal
-    -- vim.cmd.colorscheme("rose-pine-dawn")
-    -- vim.cmd.colorscheme("slate")
-    --
-    -- Best for dark theme
-    -- vim.cmd.colorscheme("brightburn")
-    --
-    -- Best for light theme
-    -- vim.cmd.colorscheme("shine")
-    -- vim.cmd.colorscheme("tokyonight-day")
-    -- vim.api.nvim_set_hl(0, "Normal", { bg = "#fdf6e3" })
-  end
-})
-
--- vim.api.nvim_create_autocmd("TermOpen", {
---   callback = function()
---     vim.wo.winhighlight = "Normal:TerminalNormal,NormalNC:TerminalNormal"
---     vim.api.nvim_set_hl(0, "TerminalNormal", { fg = "#586e75", bg = "NONE" })
---   end,
--- })
-
-
 vim.g.netrw_banner = 0
-vim.opt.winwidth = 100
+vim.opt.winwidth = 80
 vim.g.neovide_fullscreen = true
 
 vim.opt.mouse = ""
@@ -362,5 +344,19 @@ vim.opt.confirm = true
 
 -- include the restart command from the other file
 vim.cmd.source("~/.config/nvim/lua/thechetan/restart.lua")
-vim.opt.rtp:prepend("~/.opam/default/share/ocp-indent/vim")
+vim.cmd.source("~/.config/nvim/lua/thechetan/trial.lua")
+-- vim.opt.rtp:prepend("~/.opam/default/share/ocp-indent/vim")
 
+
+-- vim.keymap.set("n", "<leader>y", function()
+--   local file = vim.fn.expand("%")
+--   local test_file
+--
+--   if file:match("%.spec.ts$") then
+--     test_file = file
+--   else
+--     test_file = file:gsub("%.ts$", ".spec.ts")
+--   end
+--
+--   vim.cmd("!node --test --import tsx --test-reporter=dot " .. test_file)
+-- end, { noremap = true })

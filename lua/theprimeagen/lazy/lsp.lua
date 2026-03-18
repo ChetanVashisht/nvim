@@ -1,4 +1,3 @@
-
 return {
   {
     "neovim/nvim-lspconfig",
@@ -17,6 +16,7 @@ return {
     },
     config = function()
       local capabilities = require("blink.cmp").get_lsp_capabilities()
+      require("lazydev").setup()
 
       vim.lsp.config("lua_ls", {
         capabilities = capabilities,
@@ -24,7 +24,7 @@ return {
           Lua = {
             runtime = { version = "LuaJIT" },
             diagnostics = { globals = { "vim" } },
-            workspace = { checkThirdParty = false },
+            workspace = { checkThirdParty = true },
             telemetry = { enable = false },
           },
         },

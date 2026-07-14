@@ -11,6 +11,7 @@ return {
           'filename',
           {
             function()
+              -- See trial.lua to activate this; disabling this for now
               return vim.b.test_output or ""
             end
           }

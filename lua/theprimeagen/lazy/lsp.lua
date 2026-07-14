@@ -30,6 +30,7 @@ return {
         },
       })
       vim.lsp.enable("lua_ls")
+      vim.lsp.enable('pylsp')
 
       -- vim.lsp.enable("vue_ls")
       -- vim.lsp.config("vue_ls", {

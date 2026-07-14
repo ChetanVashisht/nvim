@@ -256,7 +256,7 @@ vim.keymap.set("x", "<leader>p", [["_dP]])
 vim.opt.switchbuf = 'usetab'
 vim.keymap.set("n", "<leader>x", ":.lua<CR>")
 
-vim.keymap.set('n', '<leader>ff', '<cmd>CommandTFd<cr>', { desc = 'Command-T Files' })
+vim.keymap.set('n', '<leader>ff', '<cmd>vsplit | wincmd l | CommandTGit<cr>', { desc = 'Command-T Files' })
 vim.keymap.set("n", '<leader>bb', '<cmd>CommandTBuffer<cr>', { desc = 'Command-T Buffers' })
 vim.keymap.set("t", '<C-b>', '<cmd>CommandTBuffer<cr>', { desc = 'Command-T Buffers' })
 
@@ -328,6 +328,8 @@ vim.keymap.set("v", "<leader>o", function ()
 end)
 vim.keymap.set("","<C-t>", "<Cmd>tabnext<CR>", { silent = true })
 vim.keymap.set("n","<D-t>", "<Cmd>tabnew<CR>", {silent = true})
+vim.keymap.set("n","mm", "<Cmd>TREPLSendLine<CR>", {silent = true})
+vim.keymap.set("n","mf", "<Cmd>TREPLSendLine<CR>", {silent = true})
 vim.keymap.set("","<D-w>", "<Cmd>tabclose<CR>", {silent = true})
 vim.keymap.set("", "<D-S-Right>", "<Cmd>tabnext<CR>", { silent = true })
 vim.keymap.set("", "<D-S-Left>", "<Cmd>tabNext<CR>", { silent = true })
@@ -340,6 +342,8 @@ vim.keymap.set("t", "<D-S-Right>", "<Cmd>tabnext<CR>", { silent = true })
 vim.keymap.set("t", "<D-S-Left>", "<Cmd>tabNext<CR>", { silent = true })
 vim.keymap.set("t", "<D-Right>", "<Cmd>tabnext<CR>", { silent = true })
 vim.keymap.set("t", "<D-Left>", "<Cmd>tabNext<CR>", { silent = true })
+vim.keymap.set("n", "zm", "zM", { desc = "Collapse all log traces" })
+vim.keymap.set("n", "zr", "zR", { desc = "Expand all log traces" })
 vim.opt.confirm = true
 
 -- include the restart command from the other file
@@ -360,3 +364,5 @@ vim.cmd.source("~/.config/nvim/lua/thechetan/trial.lua")
 --
 --   vim.cmd("!node --test --import tsx --test-reporter=dot " .. test_file)
 -- end, { noremap = true })
+
+

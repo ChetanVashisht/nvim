@@ -10,7 +10,7 @@ return {
             ignore_case = true,
             smart_case = true,
             order = 'forward',
-            position = 'bottom',
+            position = 'bottom'
         })
     end
 }
